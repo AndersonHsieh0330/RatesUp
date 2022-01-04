@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    tools:context=".ui.home.HomeFragment">
+
+    <EditText
+        android:id="@+id/HomeFragment_ToCurrency"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edittext_round_border"
+        android:hint="ex. TWD"
+        app:layout_constraintEnd_toStartOf="@+id/HomeFragment_SearchButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/HomeFragment_Arrow"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/HomeFragment_FromCurrency"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edittext_round_border"
+        android:hint="ex. USD"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <ImageView
+        android:id="@+id/HomeFragment_Arrow"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/ic_baseline_double_arrow_24"
+        app:layout_constraintBottom_toBottomOf="@id/HomeFragment_FromCurrency"
+        app:layout_constraintDimensionRatio="0.8"
+        app:layout_constraintEnd_toStartOf="@+id/HomeFragment_ToCurrency"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/HomeFragment_FromCurrency"
+        app:layout_constraintTop_toTopOf="@id/HomeFragment_FromCurrency" />
+
+
+    <!--    <Button-->
+    <!--        android:id="@+id/HomeFragment_ToCurrency"-->
+    <!--        style="?android:attr/borderlessButtonStyle"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:background="@drawable/black_round_corner_design"-->
+    <!--        android:drawableEnd="@drawable/ic_dropdownarrow"-->
+    <!--        android:paddingStart="5dp"-->
+    <!--        android:paddingEnd="15dp"-->
+    <!--        android:text="JPY"-->
+    <!--        android:textAllCaps="false"-->
+    <!--        android:textColor="?mainElementColor"-->
+    <!--        android:textSize="15sp"-->
+    <!--        app:layout_constraintEnd_toStartOf="@+id/HomeFragment_SearchButton"-->
+    <!--        app:layout_constraintHorizontal_bias="0.5"-->
+    <!--        app:layout_constraintStart_toEndOf="@+id/HomeFragment_Arrow"-->
+    <!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/HomeFragment_SearchButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/ic_baseline_search_24"
+        android:backgroundTint="@color/black"
+        android:clickable="true"
+        android:focusable="true"
+        app:cornerRadius="10dp"
+        app:layout_constraintBottom_toBottomOf="@id/HomeFragment_FromCurrency"
+        app:layout_constraintDimensionRatio="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/HomeFragment_FromCurrency">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:background="@drawable/ic_baseline_search_24" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/text_home"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
