@@ -2,4 +2,7 @@
     <string name="app_name">RatesUp</string>
     <string name="title_home">Home</string>
     <string name="title_about">About</string>
+    <string name="currencyText_hint1">ex. CAD</string>
+    <string name="currencyText_hint2">ex. TWD</string>
+
 </resources>

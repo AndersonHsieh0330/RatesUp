@@ -3,6 +3,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+
     }
     dependencies {
         classpath "com.android.tools.build:gradle:7.0.4"
@@ -12,11 +13,15 @@ buildscript {
         // in the individual module build.gradle files
 
         //Hilt
-        classpath("com.google.dagger:hilt-android-gradle-plugin:2.38.1")
+        classpath "com.google.dagger:hilt-android-gradle-plugin:2.38.1"
 
     }
 }
 
+allprojects {
+    repositories {
+    }
+}
 task clean(type: Delete) {
     delete rootProject.buildDir
 }

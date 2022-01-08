@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 import java.util.*
 
 data class APIResponseObject(
-    //ignore the "query" JSON object
+    //ignore the "query" JSON object returned from freecurencyapi
     @SerializedName("data")
     val data:Map<String, CurrencyData>
 ) {
