@@ -1,13 +1,20 @@
 package com.andersonhsieh.ratesup.ui.home
 
+import android.content.Context
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -37,9 +44,12 @@ class HomeFragment : Fragment() {
     private lateinit var searchBTN: MaterialCardView
     private lateinit var fromCurrency: EditText
     private lateinit var toCurrency: EditText
+    private lateinit var progressBar: ProgressBar
+    private lateinit var lineChartContainer : MaterialCardView
 
     val homeViewModel: HomeViewModel by activityViewModels()
 
+    private lateinit var vibrator:Vibrator
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,8 +67,9 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initUI()
-
+        vibrator = context?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         homeViewModel.getLiveData().observe(viewLifecycleOwner, Observer {
+            progressBar.visibility = View.GONE
             val yValues = ArrayList<Entry>()
 
             yValues.add(Entry(0f, it.threeMonthsAgoValue.toFloat()))
@@ -70,6 +81,7 @@ class HomeFragment : Fragment() {
             val data = LineData(dataSet)
 
             lineChart.data = data
+            lineChartContainer.visibility= View.VISIBLE
         })
 
         homeViewModel.getFromCurrencyStringLiveData().observe(viewLifecycleOwner, Observer {
@@ -88,13 +100,17 @@ class HomeFragment : Fragment() {
         searchBTN = binding.HomeFragmentSearchButton
         fromCurrency = binding.HomeFragmentFromCurrency
         toCurrency = binding.HomeFragmentToCurrency
-
+        progressBar = binding.HomeFragmentProgressBar
+        lineChartContainer = binding.HomeFragmentLineChartContainer
 
         searchBTN.setOnClickListener {
+            vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
             val dataInfoMap = generateDataParameters()
             val fromCurrency = fromCurrency.text.toString()
             val toCurrency = toCurrency.text.toString()
             if (checkValidCurrencyAndNotifyUser(fromCurrency, toCurrency)) {
+                lineChartContainer.visibility = View.GONE
+                progressBar.visibility = View.VISIBLE
                 with(dataInfoMap) {
                     homeViewModel.fetchDataFromAPI(
                         fromCurrency, toCurrency, get(Constants.toDate_Key)!!,
