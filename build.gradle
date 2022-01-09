@@ -13,7 +13,8 @@ buildscript {
         // in the individual module build.gradle files
 
         //Hilt
-        classpath "com.google.dagger:hilt-android-gradle-plugin:2.38.1"
+        def hilt_version = "2.38.1"
+        classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
 
     }
 }

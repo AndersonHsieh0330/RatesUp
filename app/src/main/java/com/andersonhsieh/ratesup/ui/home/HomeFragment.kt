@@ -1,36 +1,29 @@
 package com.andersonhsieh.ratesup.ui.home
 
 import android.os.Bundle
-import android.util.Log
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import com.andersonhsieh.ratesup.R
-import com.andersonhsieh.ratesup.data.Repository
-import com.andersonhsieh.ratesup.data.network_requests.RetrofitInstance
 import com.andersonhsieh.ratesup.databinding.FragmentHomeBinding
-import com.andersonhsieh.ratesup.model.APIResponseObject
 import com.andersonhsieh.ratesup.util.Constants
-import com.andersonhsieh.ratesup.util.CurrencyViewModelFactory
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.material.card.MaterialCardView
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import dagger.hilt.android.AndroidEntryPoint
 import java.lang.StringBuilder
 import java.time.LocalDate
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
@@ -44,6 +37,9 @@ class HomeFragment : Fragment() {
     private lateinit var searchBTN: MaterialCardView
     private lateinit var fromCurrency: EditText
     private lateinit var toCurrency: EditText
+
+    val homeViewModel: HomeViewModel by activityViewModels()
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -60,10 +56,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        //no need to instantiate view model separately in MainActivity
-        //using by activityViewModels() creates ViewModel and attach to activity lifecycle
-         val homeViewModel: HomeViewModel by activityViewModels{CurrencyViewModelFactory(Repository.getInstance())}
+        initUI()
 
         homeViewModel.getLiveData().observe(viewLifecycleOwner, Observer {
             val yValues = ArrayList<Entry>()
@@ -78,11 +71,19 @@ class HomeFragment : Fragment() {
 
             lineChart.data = data
         })
-        initUI(homeViewModel)
+
+        homeViewModel.getFromCurrencyStringLiveData().observe(viewLifecycleOwner, Observer {
+            fromCurrency.setText(it)
+        })
+
+        homeViewModel.getToCurrencyStringLiveData().observe(viewLifecycleOwner, Observer {
+            toCurrency.setText(it)
+        })
+
 
     }
 
-    private fun initUI(homeViewModel: HomeViewModel) {
+    private fun initUI() {
         lineChart = binding.HomeFragmentLineChart
         searchBTN = binding.HomeFragmentSearchButton
         fromCurrency = binding.HomeFragmentFromCurrency

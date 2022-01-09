@@ -15,10 +15,21 @@ import com.andersonhsieh.ratesup.data.Repository
 import com.andersonhsieh.ratesup.databinding.ActivityMainBinding
 import com.andersonhsieh.ratesup.ui.home.HomeViewModel
 import com.andersonhsieh.ratesup.util.CurrencyViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-class MainActivity : AppCompatActivity() {
+
+@AndroidEntryPoint
+//although we're not injecting anything into activity class
+//we still need to add @AndroidEntryPoint because the fragment is annotated
+class MainActivity (): AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    @Inject
+    lateinit var currencyViewModelFactory:CurrencyViewModelFactory
+
+    private val homeViewModel:HomeViewModel by viewModels{currencyViewModelFactory}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -8,13 +8,37 @@ import com.andersonhsieh.ratesup.data.Repository
 import com.andersonhsieh.ratesup.model.APIResponseObject
 import com.andersonhsieh.ratesup.model.ExtractedCurrencyHistoryData
 import com.andersonhsieh.ratesup.util.Constants
+import dagger.hilt.android.lifecycle.HiltViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
-class HomeViewModel(val repository: Repository) : ViewModel() {
+@HiltViewModel
+//this @HiltViewModel annotation is for fragment and activity to be able to get the ViewModel
+class HomeViewModel @Inject constructor(val repository: Repository) : ViewModel() {
 
     private val currencyData = MutableLiveData<ExtractedCurrencyHistoryData>()
+
+    private val inputCurrency = MutableLiveData<String>()
+
+    private val outputCurrency = MutableLiveData<String>()
+
+    fun getFromCurrencyStringLiveData():LiveData<String>{
+        return inputCurrency
+    }
+
+    fun updateFromCurrencyString(input:String){
+        inputCurrency.value = input;
+    }
+
+    fun getToCurrencyStringLiveData():LiveData<String>{
+        return outputCurrency
+    }
+
+    fun updateToCurrencyString(output:String){
+        outputCurrency.value = output;
+    }
 
 
     fun getLiveData():LiveData<ExtractedCurrencyHistoryData>{
@@ -29,6 +53,8 @@ class HomeViewModel(val repository: Repository) : ViewModel() {
         oneMonthAgoTimeStamp: String,
         twoMonthsAgoTimStamp: String, fromDate: String
     ) {
+        updateFromCurrencyString(fromCurrency)
+        updateToCurrencyString(toCurrency)
         repository.getData(fromCurrency, fromDate, toDate)
             .enqueue(object : Callback<APIResponseObject> {
                 override fun onResponse(
