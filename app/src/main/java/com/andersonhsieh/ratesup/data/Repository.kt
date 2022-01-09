@@ -28,24 +28,14 @@ class Repository {
         }
     }
 
-    fun getData(baseCurrency: String): Call<APIResponseObject> {
-        val today = LocalDate.now()
-        val toDate = today.toString()
-        val fromDate = setToFirstDayOfMonth(today.minusMonths(3).toString())
+    fun getData(baseCurrency: String, fromDate:String, toDate:String): Call<APIResponseObject> {
+
         //https://www.youtube.com/watch?v=sBCE_hOFnQU&ab_channel=Stevdza-San 5:49
         Log.d(Constants.loggingTag, "Repository -> getData: $fromDate ~ $toDate")
         return RetrofitInstance.apiAccessPoint.getCurrencyData(baseCurrency, fromDate, toDate);
     }
 
-    fun setToFirstDayOfMonth(yyyy_MM_dd: String): String {
-        val builder = StringBuilder(yyyy_MM_dd)
 
-        //the end index is excluded
-        builder.delete(builder.lastIndex - 1, builder.lastIndex + 1)
-        builder.append("01")
-
-        return builder.toString()
-    }
 
 
 }

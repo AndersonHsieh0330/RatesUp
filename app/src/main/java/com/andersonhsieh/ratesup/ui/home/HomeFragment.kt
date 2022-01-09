@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.andersonhsieh.ratesup.R
@@ -27,10 +28,11 @@ import com.google.android.material.card.MaterialCardView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.lang.StringBuilder
+import java.time.LocalDate
 
 class HomeFragment : Fragment() {
 
-    private lateinit var homeViewModel: HomeViewModel
     private var _binding: FragmentHomeBinding? = null
 
     // This property is only valid between onCreateView and
@@ -48,38 +50,39 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        homeViewModel =
-            ViewModelProvider(this, CurrencyViewModelFactory(Repository.getInstance())).get(
-                HomeViewModel::class.java
-            )
+
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        initUI()
-
-
-//        binding.HomeFragmentSearchButton.setOnClickListener {
-//            RetrofitInstance.apiAccessPoint.getCurrencyData().enqueue(object :
-//                Callback<APIResponseObject>{
-//                override fun onResponse(
-//                    call: Call<APIResponseObject>,
-//                    response: Response<APIResponseObject>
-//                ) {
-//                    Log.d(Constants.loggingTag, "onResponse: ${response.body()}")
-//                }
-//
-//                override fun onFailure(call: Call<APIResponseObject>, t: Throwable) {
-//                    Log.d(Constants.loggingTag, "failed")
-//
-//                }
-//
-//            })
-
         return root
     }
 
-    private fun initUI() {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        //no need to instantiate view model separately in MainActivity
+        //using by activityViewModels() creates ViewModel and attach to activity lifecycle
+         val homeViewModel: HomeViewModel by activityViewModels{CurrencyViewModelFactory(Repository.getInstance())}
+
+        homeViewModel.getLiveData().observe(viewLifecycleOwner, Observer {
+            val yValues = ArrayList<Entry>()
+
+            yValues.add(Entry(0f, it.threeMonthsAgoValue.toFloat()))
+            yValues.add(Entry(1f, it.twoMonthsAgoValue.toFloat()))
+            yValues.add(Entry(2f, it.onMonthAgoValue.toFloat()))
+            yValues.add(Entry(3f, it.currentValue.toFloat()))
+
+            val dataSet = LineDataSet(yValues, "Currency Histories")
+            val data = LineData(dataSet)
+
+            lineChart.data = data
+        })
+        initUI(homeViewModel)
+
+    }
+
+    private fun initUI(homeViewModel: HomeViewModel) {
         lineChart = binding.HomeFragmentLineChart
         searchBTN = binding.HomeFragmentSearchButton
         fromCurrency = binding.HomeFragmentFromCurrency
@@ -87,30 +90,62 @@ class HomeFragment : Fragment() {
 
 
         searchBTN.setOnClickListener {
-            val from = fromCurrency.text.toString()
-            val to = toCurrency.text.toString()
-            if (Constants.checkValidCurrency(from)){
-                if(Constants.checkValidCurrency(to)){
-                homeViewModel.getData(from,to)}
-                else{
-                    Toast.makeText(context,"Invalid Currency Code : $to", Toast.LENGTH_SHORT).show()
+            val dataInfoMap = generateDataParameters()
+            val fromCurrency = fromCurrency.text.toString()
+            val toCurrency = toCurrency.text.toString()
+            if (checkValidCurrencyAndNotifyUser(fromCurrency, toCurrency)) {
+                with(dataInfoMap) {
+                    homeViewModel.fetchDataFromAPI(
+                        fromCurrency, toCurrency, get(Constants.toDate_Key)!!,
+                        get(Constants.oneMonthAgoTimeStamp_Key)!!,
+                        get(Constants.twoMonthsAgoTimeStamp_Key)!!,
+                        get(Constants.fromDate_Key)!!
+                    )
                 }
-            }else{
-                Toast.makeText(context,"Invalid Currency Code : $from", Toast.LENGTH_SHORT).show()
             }
+
         }
 
-        val yValues = ArrayList<Entry>()
 
-        yValues.add(Entry(0f, 10f))
-        yValues.add(Entry(1f, 30f))
-        yValues.add(Entry(2f, 50f))
-        yValues.add(Entry(3f, 20f))
+    }
 
-        val dataSet = LineDataSet(yValues, "Currency Histories")
-        val data = LineData(dataSet)
+    fun generateDataParameters(): HashMap<String, String> {
+        //this HashMap contains all the string timeStamp that we want to filter out of the JSON response
+        val result = HashMap<String, String>()
+        val todayLocalDateObj = LocalDate.now()
+        result[Constants.toDate_Key] = todayLocalDateObj.toString()
+        result[Constants.oneMonthAgoTimeStamp_Key] =
+            setToFirstDayOfMonth(todayLocalDateObj.minusMonths(1).toString())
+        result[Constants.twoMonthsAgoTimeStamp_Key] =
+            setToFirstDayOfMonth(todayLocalDateObj.minusMonths(2).toString())
+        result[Constants.fromDate_Key] =
+            setToFirstDayOfMonth(todayLocalDateObj.minusMonths(3).toString())
+        return result
+    }
 
-        lineChart.data = data
+    fun setToFirstDayOfMonth(yyyy_MM_dd: String): String {
+        val builder = StringBuilder(yyyy_MM_dd)
+        //the end index is excluded
+        builder.delete(builder.lastIndex - 1, builder.lastIndex + 1)
+        builder.append("01")
+
+        return builder.toString()
+    }
+
+    fun checkValidCurrencyAndNotifyUser(fromCurrency: String, toCurrency: String): Boolean {
+        if (Constants.checkValidCurrency(fromCurrency)) {
+            if (Constants.checkValidCurrency(toCurrency)) {
+                return true
+            } else {
+                Toast.makeText(context, "Invalid Currency Code : $toCurrency", Toast.LENGTH_SHORT)
+                    .show()
+                return false
+            }
+        } else {
+            Toast.makeText(context, "Invalid Currency Code : $fromCurrency", Toast.LENGTH_SHORT)
+                .show()
+            return false
+        }
     }
 
     override fun onDestroyView() {

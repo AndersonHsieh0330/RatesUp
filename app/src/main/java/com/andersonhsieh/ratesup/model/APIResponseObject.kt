@@ -5,8 +5,12 @@ import com.google.gson.annotations.SerializedName
 import java.util.*
 
 data class APIResponseObject(
-    //ignore the "query" JSON object returned from freecurencyapi
+    @SerializedName("query")
+    val query:QueryInfo,
+
+    //Note: because the freecurrencyapi response JSON with dynamic keys
+    //thus it's better to deserialize it with nested maps
     @SerializedName("data")
-    val data:Map<String, CurrencyData>
+    val data:HashMap<String, HashMap<String,Double>>
 ) {
 }

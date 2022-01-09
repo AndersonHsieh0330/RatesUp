@@ -7,6 +7,11 @@ class Constants {
 
 
     companion object{
+        val toDate_Key = "toDate"
+        val oneMonthAgoTimeStamp_Key = "oneMonthAgoTimeStamp"
+        val twoMonthsAgoTimeStamp_Key = "twoMonthsAgoTimeStamp"
+        val fromDate_Key = "fromDate"
+
         val loggingTag = "AndyLog"
         val currencyAPIBaseURL = "https://freecurrencyapi.net/api/v2/"
         val validCurrenciesSet = HashSet<String>();

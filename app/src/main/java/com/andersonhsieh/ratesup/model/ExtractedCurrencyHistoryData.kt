@@ -1,13 +1,13 @@
 package com.andersonhsieh.ratesup.model
 
 class ExtractedCurrencyHistoryData(
-    val currentDate:String,
+    val currentTimeStamp:String,
     val currentValue:Double,
-    val oneMonthAgoDate:String,
+    val oneMonthAgoTimeStamp:String,
     val onMonthAgoValue:Double,
-    val twoMonthsAgoDate:String,
+    val twoMonthsAgoTimeStamp:String,
     val twoMonthsAgoValue:Double,
-    val threeMonthsAgoDate:String,
+    val threeMonthsAgoTimeStamp:String,
     val threeMonthsAgoValue:Double
 ){
 }
