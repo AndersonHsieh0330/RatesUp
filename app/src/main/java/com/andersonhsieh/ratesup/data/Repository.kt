@@ -26,7 +26,7 @@ class Repository @Inject constructor(val currencyApiAccessPoint:CurrencyDataAPI)
 //        }
 //    }
 
-    fun getData(baseCurrency: String, fromDate:String, toDate:String): Call<APIResponseObject> {
+    suspend fun getData(baseCurrency: String, fromDate:String, toDate:String): APIResponseObject {
 
         //https://www.youtube.com/watch?v=sBCE_hOFnQU&ab_channel=Stevdza-San 5:49
         Log.d(Constants.loggingTag, "Repository -> getData: $fromDate ~ $toDate")

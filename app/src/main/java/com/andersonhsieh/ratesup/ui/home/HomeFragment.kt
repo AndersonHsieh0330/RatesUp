@@ -27,6 +27,10 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.material.card.MaterialCardView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.lang.StringBuilder
 import java.time.LocalDate
 
@@ -45,18 +49,17 @@ class HomeFragment : Fragment() {
     private lateinit var fromCurrency: EditText
     private lateinit var toCurrency: EditText
     private lateinit var progressBar: ProgressBar
-    private lateinit var lineChartContainer : MaterialCardView
+    private lateinit var lineChartContainer: MaterialCardView
 
     val homeViewModel: HomeViewModel by activityViewModels()
 
-    private lateinit var vibrator:Vibrator
+    private lateinit var vibrator: Vibrator
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -68,29 +71,10 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initUI()
         vibrator = context?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        homeViewModel.getLiveData().observe(viewLifecycleOwner, Observer {
-            progressBar.visibility = View.GONE
-            val yValues = ArrayList<Entry>()
 
-            yValues.add(Entry(0f, it.threeMonthsAgoValue.toFloat()))
-            yValues.add(Entry(1f, it.twoMonthsAgoValue.toFloat()))
-            yValues.add(Entry(2f, it.onMonthAgoValue.toFloat()))
-            yValues.add(Entry(3f, it.currentValue.toFloat()))
-
-            val dataSet = LineDataSet(yValues, "Currency Histories")
-            val data = LineData(dataSet)
-
-            lineChart.data = data
-            lineChartContainer.visibility= View.VISIBLE
-        })
-
-        homeViewModel.getFromCurrencyStringLiveData().observe(viewLifecycleOwner, Observer {
-            fromCurrency.setText(it)
-        })
-
-        homeViewModel.getToCurrencyStringLiveData().observe(viewLifecycleOwner, Observer {
-            toCurrency.setText(it)
-        })
+        registerObserverToCurrencyResponseLiveData()
+        registerObserverToFromCurrencyString()
+        registerObserverToToCurrencyString()
 
 
     }
@@ -104,21 +88,14 @@ class HomeFragment : Fragment() {
         lineChartContainer = binding.HomeFragmentLineChartContainer
 
         searchBTN.setOnClickListener {
-            vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+            smallVibrate()
             val dataInfoMap = generateDataParameters()
             val fromCurrency = fromCurrency.text.toString()
             val toCurrency = toCurrency.text.toString()
             if (checkValidCurrencyAndNotifyUser(fromCurrency, toCurrency)) {
-                lineChartContainer.visibility = View.GONE
-                progressBar.visibility = View.VISIBLE
-                with(dataInfoMap) {
-                    homeViewModel.fetchDataFromAPI(
-                        fromCurrency, toCurrency, get(Constants.toDate_Key)!!,
-                        get(Constants.oneMonthAgoTimeStamp_Key)!!,
-                        get(Constants.twoMonthsAgoTimeStamp_Key)!!,
-                        get(Constants.fromDate_Key)!!
-                    )
-                }
+                hideLineChart()
+                showProgress()
+                fetchCurrencyData(fromCurrency, toCurrency, dataInfoMap)
             }
 
         }
@@ -126,7 +103,69 @@ class HomeFragment : Fragment() {
 
     }
 
-    fun generateDataParameters(): HashMap<String, String> {
+    fun fetchCurrencyData(
+        fromCurrency: String,
+        toCurrency: String,
+        paramterMap: HashMap<String, String>
+    ) {
+        with(paramterMap) {
+            homeViewModel.fetchDataFromAPI(
+                fromCurrency,
+                toCurrency,
+                get(com.andersonhsieh.ratesup.util.Constants.toDate_Key)!!,
+                get(com.andersonhsieh.ratesup.util.Constants.oneMonthAgoTimeStamp_Key)!!,
+                get(com.andersonhsieh.ratesup.util.Constants.twoMonthsAgoTimeStamp_Key)!!,
+                get(com.andersonhsieh.ratesup.util.Constants.fromDate_Key)!!
+            )
+        }
+    }
+
+    fun hideLineChart() {
+        lineChartContainer.visibility = View.GONE
+    }
+
+    fun showProgress() {
+        progressBar.visibility = View.VISIBLE
+
+    }
+
+    fun smallVibrate() {
+        vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+    }
+
+    private fun registerObserverToFromCurrencyString() {
+        homeViewModel.getFromCurrencyStringLiveData().observe(viewLifecycleOwner, Observer {
+            fromCurrency.setText(it)
+        })
+
+
+    }
+
+    private fun registerObserverToToCurrencyString() {
+        homeViewModel.getToCurrencyStringLiveData().observe(viewLifecycleOwner, Observer {
+            toCurrency.setText(it)
+        })
+    }
+
+    private fun registerObserverToCurrencyResponseLiveData() {
+        homeViewModel.getLiveData().observe(viewLifecycleOwner, Observer {
+            progressBar.visibility = View.GONE
+            val yValues = ArrayList<Entry>()
+
+            yValues.add(Entry(0f, it.threeMonthsAgoValue.toFloat()))
+            yValues.add(Entry(1f, it.twoMonthsAgoValue.toFloat()))
+            yValues.add(Entry(2f, it.onMonthAgoValue.toFloat()))
+            yValues.add(Entry(3f, it.currentValue.toFloat()))
+
+            val dataSet = LineDataSet(yValues, "Currency Histories")
+            val data = LineData(dataSet)
+
+            lineChart.data = data
+            lineChartContainer.visibility = View.VISIBLE
+        })
+    }
+
+    private fun generateDataParameters(): HashMap<String, String> {
         //this HashMap contains all the string timeStamp that we want to filter out of the JSON response
         val result = HashMap<String, String>()
         val todayLocalDateObj = LocalDate.now()
