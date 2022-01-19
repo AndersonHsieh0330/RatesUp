@@ -8,17 +8,7 @@
     tools:context=".ui.home.HomeFragment"
     android:background="@color/grey">
     
-    <ProgressBar
-        android:id="@+id/HomeFragment_ProgressBar"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:visibility="visible"
-        android:indeterminate="true"
-        android:background="@color/black"
-        app:layout_constraintTop_toBottomOf="@id/HomeFragment_FromCurrency"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+
 
     <EditText
         android:id="@+id/HomeFragment_ToCurrency"
@@ -116,6 +106,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <ProgressBar
+            android:id="@+id/HomeFragment_ProgressBar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:visibility="visible"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/black"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/HomeFragment_LineChart"
         android:layout_width="match_parent"
@@ -126,6 +131,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

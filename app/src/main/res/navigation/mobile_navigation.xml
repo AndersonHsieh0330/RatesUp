@@ -15,6 +15,6 @@
         android:id="@+id/navigation_dashboard"
         android:name="com.andersonhsieh.ratesup.ui.about.AboutFragment"
         android:label="@string/title_about"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_about" />
 
 </navigation>

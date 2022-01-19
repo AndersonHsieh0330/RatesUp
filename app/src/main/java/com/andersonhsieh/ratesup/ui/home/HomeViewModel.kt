@@ -81,7 +81,9 @@ class HomeViewModel @Inject constructor(val repository: Repository) : ViewModel(
                         twoMonthsAgoTimStamp,
                         twoMonthsAgoValue,
                         fromDate,
-                        threeMonthsAgoValue
+                        threeMonthsAgoValue,
+                        fromCurrency,
+                        toCurrency
                     )
                 )
 

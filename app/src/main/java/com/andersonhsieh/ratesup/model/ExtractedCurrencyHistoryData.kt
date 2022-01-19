@@ -8,6 +8,8 @@ class ExtractedCurrencyHistoryData(
     val twoMonthsAgoTimeStamp:String,
     val twoMonthsAgoValue:Double,
     val threeMonthsAgoTimeStamp:String,
-    val threeMonthsAgoValue:Double
+    val threeMonthsAgoValue:Double,
+    val fromCurrency:String,
+    val toCurrency:String
 ){
 }

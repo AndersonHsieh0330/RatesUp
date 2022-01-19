@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -19,12 +20,18 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import com.andersonhsieh.ratesup.R
 import com.andersonhsieh.ratesup.databinding.FragmentHomeBinding
+import com.andersonhsieh.ratesup.model.ExtractedCurrencyHistoryData
 import com.andersonhsieh.ratesup.util.Constants
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.*
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IAxisValueFormatter
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.card.MaterialCardView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -70,17 +77,17 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initUI()
+        hideProgress()
         vibrator = context?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
         registerObserverToCurrencyResponseLiveData()
         registerObserverToFromCurrencyString()
         registerObserverToToCurrencyString()
-
-
     }
 
     private fun initUI() {
         lineChart = binding.HomeFragmentLineChart
+        lineChart.setNoDataTextColor(R.color.black)
         searchBTN = binding.HomeFragmentSearchButton
         fromCurrency = binding.HomeFragmentFromCurrency
         toCurrency = binding.HomeFragmentToCurrency
@@ -99,8 +106,6 @@ class HomeFragment : Fragment() {
             }
 
         }
-
-
     }
 
     fun fetchCurrencyData(
@@ -121,7 +126,11 @@ class HomeFragment : Fragment() {
     }
 
     fun hideLineChart() {
-        lineChartContainer.visibility = View.GONE
+        lineChart.visibility = View.INVISIBLE
+    }
+
+    fun hideProgress() {
+        progressBar.visibility = View.INVISIBLE
     }
 
     fun showProgress() {
@@ -137,31 +146,57 @@ class HomeFragment : Fragment() {
         homeViewModel.getFromCurrencyStringLiveData().observe(viewLifecycleOwner, Observer {
             fromCurrency.setText(it)
         })
-
-
     }
 
     private fun registerObserverToToCurrencyString() {
         homeViewModel.getToCurrencyStringLiveData().observe(viewLifecycleOwner, Observer {
             toCurrency.setText(it)
         })
+
+
     }
+
+    private fun setData(it: ExtractedCurrencyHistoryData) {
+        val yValues = ArrayList<Entry>()
+
+        yValues.add(Entry(0f, it.threeMonthsAgoValue.toFloat()))
+        yValues.add(Entry(1f, it.twoMonthsAgoValue.toFloat()))
+        yValues.add(Entry(2f, it.onMonthAgoValue.toFloat()))
+        yValues.add(Entry(3f, it.currentValue.toFloat()))
+
+        val dataSet = LineDataSet(yValues, "${it.toCurrency} / per ${it.fromCurrency}")
+        val data = LineData(dataSet)
+        lineChart.xAxis.valueFormatter = IndexAxisValueFormatter(
+            arrayOf(
+                it.threeMonthsAgoTimeStamp,
+                it.twoMonthsAgoTimeStamp,
+                it.oneMonthAgoTimeStamp,
+                "Now"
+            )
+        )
+        lineChart.data = data
+    }
+
+    private fun configureChartSetting() {
+        lineChart.xAxis.setDrawAxisLine(true);
+        lineChart.xAxis.setDrawGridLines(false)
+        lineChart.xAxis.position = XAxis.XAxisPosition.BOTTOM
+
+        lineChart.axisRight.isEnabled = false
+        lineChart.setPinchZoom(false)
+        lineChart.legend.isEnabled = false
+
+        lineChart.description.isEnabled = false
+        lineChart.visibility = View.VISIBLE
+    }
+
 
     private fun registerObserverToCurrencyResponseLiveData() {
         homeViewModel.getLiveData().observe(viewLifecycleOwner, Observer {
             progressBar.visibility = View.GONE
-            val yValues = ArrayList<Entry>()
 
-            yValues.add(Entry(0f, it.threeMonthsAgoValue.toFloat()))
-            yValues.add(Entry(1f, it.twoMonthsAgoValue.toFloat()))
-            yValues.add(Entry(2f, it.onMonthAgoValue.toFloat()))
-            yValues.add(Entry(3f, it.currentValue.toFloat()))
-
-            val dataSet = LineDataSet(yValues, "Currency Histories")
-            val data = LineData(dataSet)
-
-            lineChart.data = data
-            lineChartContainer.visibility = View.VISIBLE
+            configureChartSetting()
+            setData(it)
         })
     }
 

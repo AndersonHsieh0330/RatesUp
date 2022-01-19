@@ -2,7 +2,7 @@ package com.andersonhsieh.ratesup.util
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.andersonhsieh.ratesup.MainActivity
+import com.andersonhsieh.ratesup.ui.MainActivity
 import com.andersonhsieh.ratesup.data.Repository
 import com.andersonhsieh.ratesup.ui.home.HomeViewModel
 import javax.inject.Inject
